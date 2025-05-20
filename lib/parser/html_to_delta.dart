@@ -94,21 +94,15 @@ class HtmlToDelta {
   /// final delta = converter.convert('<p>Hello <strong>world</strong></p>');
   /// print(delta.toJson()); // Output: [{"insert":"Hello "},{"insert":"world","attributes":{"bold":true}},{"insert":"\n"}]
   /// ```
-  Delta convert(
-    String htmlText, {
-    bool transformTableAsEmbed = false,
-  }) {
-    final parsedText = htmlText
-        .split('\n')
-        .map(
-          (e) => e.trim(),
-        )
-        .join()
-        .removeAllNewLines;
+  Delta convert(String htmlText, {bool transformTableAsEmbed = false}) {
+    final parsedText =
+        htmlText.split('\n').map((e) => e.trim()).join().removeAllNewLines;
     final Delta delta = Delta();
-    final dom.Document $document = dparser.parse(replaceNormalNewLinesToBr
-        ? parsedText.transformNewLinesToBrTag
-        : parsedText);
+    final dom.Document $document = dparser.parse(
+      replaceNormalNewLinesToBr
+          ? parsedText.transformNewLinesToBrTag
+          : parsedText,
+    );
     final dom.Element? $body = $document.body;
     final dom.Element? $html = $document.documentElement;
 
@@ -137,9 +131,12 @@ class HtmlToDelta {
 
       bool nextIsBlock = nextNode is dom.Element ? nextNode.isBlock : false;
       if (isBlockValidator != null) {
-        nextIsBlock = isBlockValidator?.call(nextNode is dom.Element
-                ? nextNode.localName ?? 'no-localname'
-                : 'text-node') ??
+        nextIsBlock =
+            isBlockValidator?.call(
+              nextNode is dom.Element
+                  ? nextNode.localName ?? 'no-localname'
+                  : 'text-node',
+            ) ??
             false;
       }
 
@@ -156,7 +153,8 @@ class HtmlToDelta {
         }
       }
       final bool? shouldInsertNewLine = shouldInsertANewLine?.call(
-          node is dom.Element ? node.localName ?? 'no-localname' : 'text-node');
+        node is dom.Element ? node.localName ?? 'no-localname' : 'text-node',
+      );
       if (shouldInsertNewLine != null && shouldInsertNewLine) {
         delta.insert('\n');
       }
@@ -220,15 +218,19 @@ class HtmlToDelta {
         }
       }
       final dom.Node? nextNode = nodesToProcess.elementAtOrNull(i + 1);
-      bool nextIsBlock = nextNode == null
-          ? false
-          : nextNode is! dom.Element
+      bool nextIsBlock =
+          nextNode == null
+              ? false
+              : nextNode is! dom.Element
               ? false
               : nextNode.isBlock;
       if (isBlockValidator != null) {
-        nextIsBlock = isBlockValidator?.call(nextNode is dom.Element
-                ? nextNode.localName ?? 'no-localname'
-                : 'text-node') ??
+        nextIsBlock =
+            isBlockValidator?.call(
+              nextNode is dom.Element
+                  ? nextNode.localName ?? 'no-localname'
+                  : 'text-node',
+            ) ??
             false;
       }
       final List<Operation> operations = nodeToOperation(
@@ -243,7 +245,8 @@ class HtmlToDelta {
         }
       }
       final bool? shouldInsertNewLine = shouldInsertANewLine?.call(
-          node is dom.Element ? node.localName ?? 'no-localname' : 'text-node');
+        node is dom.Element ? node.localName ?? 'no-localname' : 'text-node',
+      );
       if (shouldInsertNewLine != null && shouldInsertNewLine) {
         delta.insert('\n');
       }
@@ -301,7 +304,7 @@ class HtmlToDelta {
       // Check if the nextElement is a block AND if the last
       // operation already has a new line, this would otherwise
       // create a double new line
-      if (nextIsBlock && operations.last.data != '\n') {
+      if (nextIsBlock && operations.lastOrNull?.data != '\n') {
         operations.add(Operation.insert('\n'));
       }
     }

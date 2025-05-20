@@ -46,11 +46,18 @@ double parseSizeToPx(
   double rootFontSizeRemMultiplier = 16.0,
 }) {
   // Extract the unit from the value string.
-  final unit = value.replaceAll(RegExp(r'[0-9.]'), '');
+  final unit = value
+      .replaceAll(RegExp(r'[0-9.]'), '')
+      .replaceAll(RegExp(r'var\(--'), '')
+      .replaceAll(RegExp(r'\)'), '');
 
   // Extract the numeric part of the value string.
   final number =
-      double.tryParse(value.replaceAll(RegExp(r'[a-z%]'), '')) ?? 0.0;
+      double.tryParse(value.replaceAll(RegExp(r'[a-z%]'), '')) ??
+      double.tryParse(
+        value.replaceAll(RegExp(r'var\(--'), '').replaceAll(RegExp(r'\)'), ''),
+      ) ??
+      0.0;
 
   // Convert the numeric value to pixels based on the unit.
   switch (unit) {
